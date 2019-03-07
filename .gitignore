@@ -2,6 +2,8 @@
 *.log
 *.pid
 *.swp
+.python-version
+.venv
 build
 dist
 castro.egg-info
