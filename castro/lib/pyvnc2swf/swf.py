@@ -25,10 +25,7 @@
 
 import sys, zlib
 from struct import pack, unpack
-try:
-  from cStringIO import StringIO
-except ImportError:
-  from StringIO import StringIO
+from io import StringIO
 stderr = sys.stderr
 lowerbound = max
 upperbound = min
@@ -127,7 +124,7 @@ class DataParser:
       c = self.read(1)
       if c == '\x00': break
       s.append(c)
-    return unicode(''.join(s), self.encoding)
+    return str(''.join(s), self.encoding)
 
 
 ##  SWFParser
@@ -148,7 +145,7 @@ class SWFParser(DataParser):
     DataParser.open(self, fname)
     self.parse_header()
     if header_only: return
-    print >>stderr, 'Scanning source swf file: %s...' % fname
+    print('Scanning source swf file: %s...' % fname, file=stderr)
     pos = self.fp.tell()
     try:
       while 1:
@@ -165,7 +162,7 @@ class SWFParser(DataParser):
           getattr(self, name)(tag, length)
         if self.debug:
           data = self.fp.read(length)
-          print >>stderr, 'tag=%d, data=%r' % (tag, data)
+          print('tag=%d, data=%r' % (tag, data), file=stderr)
         else:
           self.fp.seek(pos0+length)
         if tag == 1:
@@ -184,7 +181,7 @@ class SWFParser(DataParser):
       self.encoding = 'utf-8'
     self.totallen = self.readui32()
     if self.debug:
-      print >>stderr, 'Header:', (F,W,S,self.swf_version,self.totallen)
+      print('Header:', (F,W,S,self.swf_version,self.totallen), file=stderr)
     if F == 'C':
       # compressed
       x = zlib.decompress(self.fp.read())
@@ -193,13 +190,13 @@ class SWFParser(DataParser):
     self.framerate = self.readui16()/256.0
     self.framecount = self.readui16()
     if self.debug:
-      print >>stderr, 'Header:', self.rect, self.framerate, self.framecount
+      print('Header:', self.rect, self.framerate, self.framecount, file=stderr)
     return
 
   def parse_frame(self, n):
     self.fp.seek(self.framepos[n])
     if self.debug:
-      print >>stderr, 'seek:', n, self.framepos[n]
+      print('seek:', n, self.framepos[n], file=stderr)
     try:
       while 1:
         x = self.readui16()
@@ -240,7 +237,7 @@ class SWFParser(DataParser):
 
   def do_unknown_tag(self, tag, length):
     if self.debug:
-      print >>stderr, 'unknown tag: %d, length=%d' % (tag, length)
+      print('unknown tag: %d, length=%d' % (tag, length), file=stderr)
     return
 
   def do_tag0(self, tag, length):
@@ -276,7 +273,7 @@ class SWFParser(DataParser):
   def readgradient(self, version):
     n = self.readui8()
     r = []
-    for i in xrange(n):
+    for i in range(n):
       ratio = self.readui8()
       if version < 3:
         color = self.readrgb()
@@ -295,7 +292,7 @@ class SWFParser(DataParser):
     nfills = self.readui8()
     if 2 <= version and nfills == 0xff:
       nfills = self.readui16()
-    for i in xrange(nfills):
+    for i in range(nfills):
       t = self.readui8()
       (color, matrix, gradient, bitmapid, bitmapmatrix) = (None, None, None, None, None)
       if t == 0x00:
@@ -315,7 +312,7 @@ class SWFParser(DataParser):
     nlines = self.readui8()
     if 2 <= version and nlines == 0xff:
       nlines = self.readui16()
-    for i in xrange(nlines):
+    for i in range(nlines):
       width = self.readui16()
       if version == 3:
         color = self.readrgba()
@@ -390,7 +387,7 @@ class FLVParser(DataParser):
     DataParser.open(self, fname)
     self.parse_header()
     if header_only: return
-    print >>stderr, 'Scanning source flv file: %s...' % fname
+    print('Scanning source flv file: %s...' % fname, file=stderr)
     try:
       offset = self.readub32()          # always 0
       while 1:
@@ -412,7 +409,7 @@ class FLVParser(DataParser):
     flags = self.readui8()
     offset = self.readub32()
     if self.debug:
-      print >>stderr, 'Header:', (F,L,V,self.flv_version,flags)
+      print('Header:', (F,L,V,self.flv_version,flags), file=stderr)
     return
 
   def get_tag(self, i):

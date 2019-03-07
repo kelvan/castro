@@ -7,8 +7,8 @@ from time import sleep
 from multiprocessing import Process
 import yaml
 
-import lib.messageboard as mb
-from lib.pyvnc2swf import vnc2swf
+from .lib import messageboard as mb
+from .lib.pyvnc2swf import vnc2swf
 
 # Get directory for storing files:
 DATA_DIR = os.environ.get('CASTRO_DATA_DIR', None) or tempfile.gettempdir()
@@ -92,21 +92,21 @@ class Castro:
         The tip for adding the "-g" flag: http://www.infinitecube.com/?p=9
         """
 
-        print "Running ffmpeg: creating keyframes"
+        print("Running ffmpeg: creating keyframes")
         os.system("ffmpeg -y -i %s -g %s -sameq %s" %
           (self.filepath,
            self.framerate,
            self.tempfilepath))
 
     def calc_duration(self):
-        print "Getting Duration:"  
+        print("Getting Duration:")  
         flv_data_raw = os.popen("flvtool2 -P %s" % self.tempfilepath).read()
         flv_data = yaml.load(flv_data_raw)
-        self.duration = int(round(flv_data[flv_data.keys()[0]]['duration']))
-        print "Duration: %s" % self.duration
+        self.duration = int(round(flv_data[list(flv_data.keys())[0]]['duration']))
+        print("Duration: %s" % self.duration)
 
     def cuepoint(self):
-        print "\n\nCreating cuepoints:"
+        print("\n\nCreating cuepoints:")
         # Create the cuepoints file
         cuefile = open(self.cuefilepath,'w')
 

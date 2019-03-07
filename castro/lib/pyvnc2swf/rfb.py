@@ -28,8 +28,8 @@
 
 import sys, time, socket
 from struct import pack, unpack
-from d3des import decrypt_passwd, generate_response
-from image import IMG_SOLID, IMG_RAW
+from .d3des import decrypt_passwd, generate_response
+from .image import IMG_SOLID, IMG_RAW
 # JRH - castro - begin
 from .. import messageboard as mb
 # JRH - castro - end
@@ -38,7 +38,7 @@ lowerbound = max
 
 
 def byte2bit(s):
-  return ''.join([ chr((ord(s[i>>3]) >> (7 - i&7)) & 1) for i in xrange(len(s)*8) ])
+  return ''.join([ chr((ord(s[i>>3]) >> (7 - i&7)) & 1) for i in range(len(s)*8) ])
 
 
 # Exceptions
@@ -147,7 +147,7 @@ class RFBProxy:
       self.protocol_version = 8
     self.send('RFB 003.%03d\x0a' % self.protocol_version)
     if self.debug:
-      print >>stderr, 'protocol_version: 3.%d' % self.protocol_version
+      print('protocol_version: 3.%d' % self.protocol_version, file=stderr)
     return self
 
   def getpass(self):
@@ -171,10 +171,10 @@ class RFBProxy:
       # from pyvncviewer
       challange = self.recv(16)
       if self.debug:
-        print >>stderr, 'challange: %r' % challange
+        print('challange: %r' % challange, file=stderr)
       response = generate_response(p, challange)
       if self.debug:
-        print >>stderr, 'response: %r' % response
+        print('response: %r' % response, file=stderr)
       self.send(response)
       # recv: security result
       (result,) = unpack('>L', self.recv(4))
@@ -186,7 +186,7 @@ class RFBProxy:
       # recv: server security
       (server_security,) = unpack('>L', self.recv(4))
       if self.debug:
-        print >>stderr, 'server_security: %r' % server_security
+        print('server_security: %r' % server_security, file=stderr)
       # server_security might be 0, 1 or 2.
       if server_security == 0:
         (reason_length,) = unpack('>L', self.recv(4))
@@ -202,7 +202,7 @@ class RFBProxy:
       (nsecurities,) = unpack('>B', self.recv(1))
       server_securities = self.recv(nsecurities)
       if self.debug:
-        print >>stderr, 'server_securities: %r' % server_securities
+        print('server_securities: %r' % server_securities, file=stderr)
       # must include None or VNCAuth
       if '\x01' in server_securities:
         # None
@@ -218,7 +218,7 @@ class RFBProxy:
         (p, server_result) = crauth()
     # result returned.
     if self.debug:
-      print >>stderr, 'server_result: %r' % server_result
+      print('server_result: %r' % server_result, file=stderr)
     if server_result != 0:
       # auth failed.
       if self.protocol_version != 3:
@@ -243,11 +243,11 @@ class RFBProxy:
      red_max, green_max, blue_max,
      red_shift, green_shift, blue_shift) = unpack('>BBBBHHHBBBxxx', pixelformat)
     if self.debug:
-      print >>stderr, 'Server Encoding:'
-      print >>stderr, ' width=%d, height=%d, name=%r' % (width, height, self.name)
-      print >>stderr, ' pixelformat=', (bitsperpixel, depth, bigendian, truecolour)
-      print >>stderr, ' rgbmax=', (red_max, green_max, blue_max)
-      print >>stderr, ' rgbshift=', (red_shift, green_shift, blue_shift)
+      print('Server Encoding:', file=stderr)
+      print(' width=%d, height=%d, name=%r' % (width, height, self.name), file=stderr)
+      print(' pixelformat=', (bitsperpixel, depth, bigendian, truecolour), file=stderr)
+      print(' rgbmax=', (red_max, green_max, blue_max), file=stderr)
+      print(' rgbshift=', (red_shift, green_shift, blue_shift), file=stderr)
     # setformat
     self.send('\x00\x00\x00\x00')
     # 32bit, 8bit-depth, big-endian(RGBX), truecolour, 255max
@@ -283,17 +283,17 @@ class RFBProxy:
     elif c == '\x00':
       (nrects,) = unpack('>xH', self.recv_relay(3))
       if self.debug:
-        print >>stderr, 'FrameBufferUpdate: nrects=%d' % nrects
+        print('FrameBufferUpdate: nrects=%d' % nrects, file=stderr)
       for rectindex in xrange(nrects):
         (x0, y0, width, height, t) = unpack('>HHHHl', self.recv_relay(12))
         if self.debug:
-          print >>stderr, ' %d: %d x %d at (%d,%d), type=%d' % (rectindex, width, height, x0, y0, t)
+          print(' %d: %d x %d at (%d,%d), type=%d' % (rectindex, width, height, x0, y0, t), file=stderr)
         # RawEncoding
         if t == 0:
           l = width*height*self.bytesperpixel
           data = self.recv_relay(l)
           if self.debug:
-            print >>stderr, ' RawEncoding: len=%d, received=%d' % (l, len(data))
+            print(' RawEncoding: len=%d, received=%d' % (l, len(data)), file=stderr)
           if self.fb:
             self.fb.process_pixels(x0, y0, width, height, data)
         # CopyRectEncoding
@@ -304,22 +304,22 @@ class RFBProxy:
           (nsubrects,) = unpack('>L', self.recv_relay(4))
           bgcolor = self.recv_relay(self.bytesperpixel)
           if self.debug:
-            print >>stderr, ' RREEncoding: subrects=%d, bgcolor=%r' % (nsubrects, bgcolor)
+            print(' RREEncoding: subrects=%d, bgcolor=%r' % (nsubrects, bgcolor), file=stderr)
           if self.fb:
             self.fb.process_solid(x0, y0, width, height, bgcolor)
-          for i in xrange(nsubrects):
+          for i in range(nsubrects):
             fgcolor = self.recv_relay(self.bytesperpixel)
             (x,y,w,h) = unpack('>HHHH', self.recv_relay(8))
             if self.fb:
               self.fb.process_solid(x0+x, y0+y, w, h, fgcolor)
             if 2 <= self.debug:
-              print >>stderr, ' RREEncoding: ', (x,y,w,h,fgcolor)
+              print(' RREEncoding: ', (x,y,w,h,fgcolor), file=stderr)
         # CoRREEncoding
         elif t == 4:
           (nsubrects,) = unpack('>L', self.recv_relay(4))
           bgcolor = self.recv_relay(self.bytesperpixel)
           if self.debug:
-            print >>stderr, ' CoRREEncoding: subrects=%d, bgcolor=%r' % (nsubrects, bgcolor)
+            print(' CoRREEncoding: subrects=%d, bgcolor=%r' % (nsubrects, bgcolor), file=stderr)
           if self.fb:
             self.fb.process_solid(x0, y0, width, height, bgcolor)
           for i in xrange(nsubrects):
@@ -328,14 +328,14 @@ class RFBProxy:
             if self.fb:
               self.fb.process_solid(x0+x, y0+y, w, h, fgcolor)
             if 2 <= self.debug:
-              print >>stderr, ' CoRREEncoding: ', (x,y,w,h,fgcolor)
+              print(' CoRREEncoding: ', (x,y,w,h,fgcolor), file=stderr)
         # HextileEncoding
         elif t == 5:
           if self.debug:
-            print >>stderr, ' HextileEncoding'
+            print(' HextileEncoding', file=stderr)
           (fgcolor, bgcolor) = (None, None)
-          for y in xrange(0, height, 16):
-            for x in xrange(0, width, 16):
+          for y in range(0, height, 16):
+            for x in range(0, width, 16):
               w = min(width-x, 16)
               h = min(height-y, 16)
               c = ord(self.recv_relay(1))
@@ -347,7 +347,7 @@ class RFBProxy:
                 if self.fb:
                   self.fb.process_pixels(x0+x, y0+y, w, h, data)
                 if 2 <= self.debug:
-                  print >>stderr, '  Raw:', l
+                  print('  Raw:', l, file=stderr)
                 continue
               if c & 2:
                 bgcolor = self.recv_relay(self.bytesperpixel)
@@ -358,30 +358,30 @@ class RFBProxy:
               # Solid
               if not c & 8:
                 if 2 <= self.debug:
-                  print >>stderr, '  Solid:', repr(bgcolor)
+                  print('  Solid:', repr(bgcolor), file=stderr)
                 continue
               nsubrects = ord(self.recv_relay(1))
               # SubrectsColoured
               if c & 16:
                 if 2 <= self.debug:
-                  print >>stderr, '  SubrectsColoured:', nsubrects, repr(bgcolor)
-                for i in xrange(nsubrects):
+                  print('  SubrectsColoured:', nsubrects, repr(bgcolor), file=stderr)
+                for i in range(nsubrects):
                   color = self.recv_relay(self.bytesperpixel)
                   (xy,wh) = unpack('>BB', self.recv_relay(2))
                   if self.fb:
                     self.fb.process_solid(x0+x+(xy>>4), y0+y+(xy&15), (wh>>4)+1, (wh&15)+1, color)
                   if 3 <= self.debug:
-                    print >>stderr, '   ', repr(color), (xy,wh)
+                    print('   ', repr(color), (xy,wh), file=stderr)
               # NoSubrectsColoured
               else:
                 if 2 <= self.debug:
-                  print >>stderr, '  NoSubrectsColoured:', nsubrects, repr(bgcolor)
-                for i in xrange(nsubrects):
+                  print('  NoSubrectsColoured:', nsubrects, repr(bgcolor), file=stderr)
+                for i in range(nsubrects):
                   (xy,wh) = unpack('>BB', self.recv_relay(2))
                   if self.fb:
                     self.fb.process_solid(x0+x+(xy>>4), y0+y+(xy&15), (wh>>4)+1, (wh&15)+1, fgcolor)
                   if 3 <= self.debug:
-                    print >>stderr, '  ', (xy,wh)
+                    print('  ', (xy,wh), file=stderr)
         # ZRLEEncoding
         elif t == 16:
           raise RFBProtocolError('unsupported: ZRLEEncoding')
@@ -395,17 +395,17 @@ class RFBProxy:
             mask = self.recv_relay(rowbytes * height)
             # Set the alpha channel with maskData where bit=1 -> alpha = 255, bit=0 -> alpha=255
             if self.debug:
-              print >>stderr, 'RichCursor: %dx%d at %d,%d' % (width,height,x0,y0)
+              print('RichCursor: %dx%d at %d,%d' % (width,height,x0,y0), file=stderr)
             if self.fb:
               data = self.fb.convert_pixels(data)
               mask = ''.join([ byte2bit(mask[p:p+rowbytes])[:width]
-                               for p in xrange(0, height*rowbytes, rowbytes) ])
+                               for p in range(0, height*rowbytes, rowbytes) ])
               def conv1(i):
                 if mask[i/4] == '\x01':
                   return '\xff'+data[i]+data[i+1]+data[i+2]
                 else:
                   return '\x00\x00\x00\x00'
-              data = ''.join([ conv1(i) for i in xrange(0, len(data), 4) ])
+              data = ''.join([ conv1(i) for i in range(0, len(data), 4) ])
               self.fb.change_cursor(width, height, x0, y0, data)
         # XCursor
         elif t == -240:
@@ -421,12 +421,12 @@ class RFBProxy:
             mask = self.recv_relay(rowbytes * height)
             # Create the image from cursordata and maskdata.
             if self.debug:
-              print >>stderr, 'XCursor: %dx%d at %d,%d' % (width,height,x0,y0)
+              print('XCursor: %dx%d at %d,%d' % (width,height,x0,y0), file=stderr)
             if self.fb:
               data = ''.join([ byte2bit(data[p:p+rowbytes])[:width]
-                               for p in xrange(0, height*rowbytes, rowbytes) ])
+                               for p in range(0, height*rowbytes, rowbytes) ])
               mask = ''.join([ byte2bit(mask[p:p+rowbytes])[:width]
-                               for p in xrange(0, height*rowbytes, rowbytes) ])
+                               for p in range(0, height*rowbytes, rowbytes) ])
               def conv1(i):
                 if mask[i] == '\x01':
                   if data[i] == '\x01':
@@ -435,12 +435,12 @@ class RFBProxy:
                     return '\xff'+bgcolor
                 else:
                   return '\x00\x00\x00\x00'
-              data = ''.join([ conv1(i) for i in xrange(len(data)) ])
+              data = ''.join([ conv1(i) for i in range(len(data)) ])
               self.fb.change_cursor(width, height, x0, y0, data)
         # CursorPos -> only change the cursor position
         elif t == -232:
           if self.debug:
-            print >>stderr, 'CursorPos: %d,%d' % (x0,y0)
+            print('CursorPos: %d,%d' % (x0,y0), file=stderr)
           if self.fb:
             self.fb.move_cursor(x0, y0)
         else:
@@ -449,19 +449,19 @@ class RFBProxy:
     elif c == '\x01':
       (first, ncolours) = unpack('>xHH', self.recv_relay(11))
       if self.debug:
-        print >>stderr, 'SetColourMapEntries: first=%d, ncolours=%d' % (first, ncolours)
+        print('SetColourMapEntries: first=%d, ncolours=%d' % (first, ncolours), file=stderr)
       for i in ncolours:
         self.recv_relay(6)
 
     elif c == '\x02':
       if self.debug:
-        print >>stderr, 'Bell'
+        print('Bell', file=stderr)
 
     elif c == '\x03':
       (length, ) = unpack('>3xL', self.recv_relay(7))
       data = self.recv_relay(length)
       if self.debug:
-        print >>stderr, 'ServerCutText: %r' % data
+        print('ServerCutText: %r' % data, file=stderr)
 
     else:
       raise RFBProtocolError('Unsupported msg: %d' % ord(c))
@@ -514,8 +514,8 @@ class RFBNetworkClient(RFBProxy):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.sock.connect((self.host, self.port))
     x = RFBProxy.init(self)
-    print >>stderr, 'Connected: %s:%d, protocol_version=3.%d, preferred_encoding=%s' % \
-          (self.host, self.port, self.protocol_version, self.preferred_encoding)
+    print('Connected: %s:%d, protocol_version=3.%d, preferred_encoding=%s' % \
+          (self.host, self.port, self.protocol_version, self.preferred_encoding), file=stderr)
     return x
 
   def recv(self, n):
@@ -547,7 +547,7 @@ class RFBNetworkClient(RFBProxy):
 
   def request_update(self):
     if self.debug:
-      print >>stderr, 'FrameBufferUpdateRequest'
+      print('FrameBufferUpdateRequest', file=stderr)
     self.send('\x03\x01' + pack('>HHHH', *self.clipping))
     return
 
@@ -565,7 +565,7 @@ class RFBNetworkClientForRecording(RFBNetworkClient):
                preferred_encoding=(5,0), debug=0):
     RFBNetworkClient.__init__(self, host, port, fb=None, pwdfile=pwdfile,
                               preferred_encoding=preferred_encoding, debug=debug)
-    print >>stderr, 'Creating vncrec: %r: vncLog0.0' % fp
+    print('Creating vncrec: %r: vncLog0.0' % fp, file=stderr)
     self.fp = fp
     self.write('vncLog0.0')
     # disguise data (security=none)
@@ -653,7 +653,7 @@ class RFBFileParser(RFBProxy):
   def init(self):
     self.curtime = 0
     version = self.fp.read(9)
-    print >>stderr, 'Reading vncrec file: %s, version=%r...' % (self.fp, version)
+    print('Reading vncrec file: %s, version=%r...' % (self.fp, version), file=stderr)
     if version != 'vncLog0.0':
       raise RFBProtocolError('Unsupported vncrec version: %r' % version)
     return RFBProxy.init(self)
@@ -674,7 +674,7 @@ class RFBFileParser(RFBProxy):
       # recv: server security
       (server_security,) = unpack('>L', self.recv(4))
       if self.debug:
-        print >>stderr, 'server_security: %r' % server_security
+        print('server_security: %r' % server_security, file=stderr)
       if server_security == 2:
         # skip challenge+result (dummy)
         self.recv(20)
@@ -717,7 +717,7 @@ class RFBConverter(RFBFrameBuffer):
     return
 
   def init_screen(self, width, height, name):
-    print >>stderr, 'VNC Screen: size=%dx%d, name=%r' % (width, height, name)
+    print('VNC Screen: size=%dx%d, name=%r' % (width, height, name), file=stderr)
     self.info.set_defaults(width, height)
     self.images = []
     self.cursor_image = None
@@ -779,7 +779,7 @@ class RFBMovieConverter(RFBConverter):
           endpos = self.rfbparser.tell()
           self.frameinfo.append((self.beginpos, endpos))
           if self.debug:
-            print >>stderr, 'scan:', self.beginpos, endpos
+            print('scan:', self.beginpos, endpos, file=stderr)
           self.beginpos = endpos
           done = True
     return
@@ -796,7 +796,7 @@ class RFBMovieConverter(RFBConverter):
   def parse_frame(self, i):
     (pos, endpos) = self.frameinfo[i]
     if self.debug:
-      print >>stderr, 'seek:', i, pos, endpos
+      print('seek:', i, pos, endpos, file=stderr)
     self.rfbparser.seek(pos)
     self.images = []
     self.processing = True

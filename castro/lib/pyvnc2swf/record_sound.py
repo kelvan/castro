@@ -32,7 +32,7 @@ class voiceRecorder:
     self.snd.stop()
 
   def run(self):
-    print "recording to", self.name
+    print("recording to", self.name)
     self.f= open( self.name, 'wb' )
     # Minimum set of parameters we need to create Encoder
 
@@ -57,15 +57,15 @@ class voiceRecorder:
         time.sleep( .003 )
     except KeyboardInterrupt:
       self.finished = True
-    print "finishing recording to", self.name
+    print("finishing recording to", self.name)
     # Stop listening the incoming sound from the microphone or line in
     thread.join()
     footer = self.mux.end()
     if footer is not None:
       self.f.write(footer)
     self.f.close()
-    print "finished recording to", self.name
-    print "snipping leading zeroes..."
+    print("finished recording to", self.name)
+    print("snipping leading zeroes...")
     f = open( self.name, "rb" )
     buffer = f.read()
     f.close()
@@ -73,7 +73,7 @@ class voiceRecorder:
     f = open( self.name, "wb" )
     f.write( buffer )
     f.close()
-    print "snipped leading zeroes"
+    print("snipped leading zeroes")
 
 # ----------------------------------------------------------------------------------
 
@@ -86,6 +86,6 @@ class voiceRecorder:
 if __name__ == "__main__":
   import time
   if len( sys.argv )!= 2:
-    print 'Usage: %s <file_name>' % sys.argv[ 0 ]
+    print('Usage: %s <file_name>' % sys.argv[ 0 ])
   else:
     voiceRecorder( sys.argv[ 1 ]  ).run()

@@ -24,7 +24,7 @@
 ##
 
 import sys, os, os.path
-from swf import SWFParser
+from .swf import SWFParser
 
 PYVNC2SWF_VERSION = '0.9.2'
 
@@ -288,7 +288,7 @@ def generate_html(out, fname, seekbar=True, loop=True):
 if __name__ == '__main__':
   import getopt
   def usage():
-    print 'usage: %s [-S)eekbarless] [-L)oopless] file' % sys.argv[0]
+    print('usage: %s [-S)eekbarless] [-L)oopless] file' % sys.argv[0])
     sys.exit(2)
   try:
     (opts, args) = getopt.getopt(sys.argv[1:], 'SL')

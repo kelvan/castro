@@ -25,9 +25,9 @@
 
 import sys, os.path, subprocess
 import pygame
-from image import create_image_from_string_argb
-from movie import SWFInfo, MovieContainer
-from output import SWFScreen, MovieOutputStream, MovieBuilder
+from .image import create_image_from_string_argb
+from .movie import SWFInfo, MovieContainer
+from .output import SWFScreen, MovieOutputStream, MovieBuilder
 lowerbound = max
 upperbound = min
 stderr = sys.stderr
@@ -191,7 +191,7 @@ class PygameMoviePlayer(MovieOutputStream):
             (root, ext) = os.path.splitext(self.info.filename)
             fname = '%s-%05d.bmp' % (root, self.current_frame)
             pygame.image.save(self.screen.buf, fname)
-            print >>stderr, 'Save:', fname
+            print('Save:', fname, file=stderr)
           elif e.key == 275: # right
             self.current_frame += 1
             self.seek(self.current_frame)
@@ -199,7 +199,7 @@ class PygameMoviePlayer(MovieOutputStream):
             self.current_frame -= 1
             self.seek(self.current_frame)
           else:
-            print >>stderr, 'Unknown key:', e
+            print('Unknown key:', e, file=stderr)
         elif e.type == pygame.QUIT:
           # window close attmpt
           loop = False
@@ -244,7 +244,7 @@ def play(moviefiles, info, debug=0):
 def main(argv):
   import getopt, re
   def usage():
-    print 'usage: %s [-d] [-r framerate] [-C WxH+X+Y] [-s scaling] file1 file2 ...' % argv[0]
+    print('usage: %s [-d] [-r framerate] [-C WxH+X+Y] [-s scaling] file1 file2 ...' % argv[0])
     return 100
   try:
     (opts, args) = getopt.getopt(argv[1:], 'dr:C:s:')
@@ -261,14 +261,14 @@ def main(argv):
     elif k == '-C':
       m = re.match(r'^(\d+)x(\d+)\+(\d+)\+(\d+)$', v)
       if not m:
-        print >>stderr, 'Invalid clipping specification:', v
+        print('Invalid clipping specification:', v, file=stderr)
         return usage()
-      x = map(int, m.groups())
+      x = list(map(int, m.groups()))
       info.clipping = (x[2],x[3], x[0],x[1])
     elif k == '-s':
       info.scaling = float(v)
   if not args:
-    print >>stderr, 'Specify at least one input movie.'
+    print('Specify at least one input movie.', file=stderr)
     return usage()
   return play(args, info, debug=debug)
 

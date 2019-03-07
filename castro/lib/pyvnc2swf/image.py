@@ -37,12 +37,11 @@ IMG_LOSSLESS = 3
 IMG_VIDEOPACKET = 4
 
 def bgr2rgb(data):
-  return ''.join([ data[i+2]+data[i+1]+data[i] for i in xrange(0, len(data), 3) ])
+  return ''.join([ data[i+2]+data[i+1]+data[i] for i in range(0, len(data), 3) ])
 
 try:
   # try to pygame 1.6 or newer.
   import pygame
-  #print >>sys.stderr, 'Using pygame', pygame.ver
   pygame.init()
   try:
     pygame.mixer.quit()
@@ -59,7 +58,7 @@ try:
   def create_image_from_string_xrgb(w, h, data):
     return pygame.image.fromstring(data[1:]+'x', (w, h), 'RGBX')
   def create_image_from_string_argb(w, h, data):
-    data = ''.join([ data[i+1]+data[i+2]+data[i+3]+data[i] for i in xrange(0, len(data), 4) ])
+    data = ''.join([ data[i+1]+data[i+2]+data[i+3]+data[i] for i in range(0, len(data), 4) ])
     return pygame.image.fromstring(data, (w, h), 'RGBA')
   def create_image_from_string_rgb_flipped(w, h, data):
     return pygame.image.fromstring(data, (w, h), 'RGB', 1)
@@ -70,7 +69,7 @@ try:
     return dest.blit(src, (x0, y0))
   def save_image(img, fname):
     if not fname.endswith('.bmp'):
-      print >>sys.stderr, 'Warning: this format not supported by pygame, raw rgb is used instead.'
+      print('Warning: this format not supported by pygame, raw rgb is used instead.', file=stderr)
     return pygame.image.save(img, fname)
   def convert_image_to_string_rgb_flipped(img):
     return pygame.image.tostring(img, 'RGB', 1)
@@ -81,10 +80,6 @@ try:
   def solid_fill(dest, rect, color):
     return dest.fill(color, rect)
   def scale_image(img, scaling):
-    # this might cause segmentation faults sometimes :(
-    # In that case, use the following instead:
-    #   (w,h) = img.get_size()
-    #   return pygame.transform.scale(img, (int(w*scaling), int(h*scaling)))
     return pygame.transform.rotozoom(img, 0, scaling)
 
 except ImportError:
@@ -93,9 +88,9 @@ except ImportError:
   try:
     import Image
   except ImportError:
-    print >>sys.stderr, 'Either Pygame or Python Imaging Library is required.'
+    print('Either Pygame or Python Imaging Library is required.', file=stderr)
     sys.exit(1)
-  print >>sys.stderr, 'Using PIL', Image.VERSION
+  print('Using PIL', Image.VERSION, file=stderr)
   def imgsize(img):
     return img.size
   def create_image(w, h):

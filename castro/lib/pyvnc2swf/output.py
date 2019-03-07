@@ -24,8 +24,8 @@
 ##
 
 import sys, zlib
-from swf import SWFWriter, FLVWriter, CURSOR_DEPTH
-from image import *
+from .swf import SWFWriter, FLVWriter, CURSOR_DEPTH
+from .image import *
 stderr = sys.stderr
 lowerbound = max
 upperbound = min
@@ -165,7 +165,7 @@ class SWFShapeScreen(SWFBlockScreen):
     return
   
   def initmap(self):
-    self.map = [ [None]*self.hblocks for i in xrange(self.vblocks) ]
+    self.map = [ [None]*self.hblocks for i in range(self.vblocks) ]
     return
 
   def next_frame(self):
@@ -183,9 +183,9 @@ class SWFShapeScreen(SWFBlockScreen):
     x0 = lowerbound(x0/self.block_w, 0)
     y0 = lowerbound(y0/self.block_h, 0)
     depth0 = self.last_depth
-    for y in xrange(y0, y1):
+    for y in range(y0, y1):
       line = self.map[y]
-      for x in xrange(x0, x1):
+      for x in range(x0, x1):
         obj0 = line[x]
         if not obj0 or obj0.depth < depth0:
           depth0 = -1
@@ -198,7 +198,7 @@ class SWFShapeScreen(SWFBlockScreen):
     self.current_depth += 1
     # find completely covered objects (whose ref==0).
     for line in self.map[y0:y1]:
-      for x in xrange(x0, x1):
+      for x in range(x0, x1):
         obj0 = line[x]
         if obj0:
           obj0.count -= 1
@@ -225,8 +225,8 @@ class SWFVideoScreen(SWFBlockScreen):
     return
 
   def init_blocks(self):
-    self.block_changed = [ [True]*self.hblocks for i in xrange(self.vblocks) ]
-    self.block_image = [ [None]*self.hblocks for i in xrange(self.vblocks) ]
+    self.block_changed = [ [True]*self.hblocks for i in range(self.vblocks) ]
+    self.block_image = [ [None]*self.hblocks for i in range(self.vblocks) ]
     return
 
   # must return a string!
@@ -267,7 +267,7 @@ class SWFVideoScreen(SWFBlockScreen):
     x0 = lowerbound(x0/self.block_w, 0)
     y0 = lowerbound((self.out_height-(y0+h-1))/self.block_h, 0)
     for line in self.block_changed[y0:y1]:
-      for x in xrange(x0, x1):
+      for x in range(x0, x1):
         line[x] = True
     return True
   
@@ -312,7 +312,7 @@ class MovieOutputStream:
   
   def close(self):
     if self.debug:
-      print >>stderr, 'stream: close'
+      print('stream: close', file=stderr)
     return
 
   def write_mp3frames(self, frameid=None):
@@ -346,10 +346,10 @@ class SWFOutputStream(MovieOutputStream):
 
   def open(self):
     MovieOutputStream.open(self)
-    print >>stderr, 'Creating movie: %r: version=%d, size=%dx%d, framerate=%s, compression=%s' % \
+    print('Creating movie: %r: version=%d, size=%dx%d, framerate=%s, compression=%s' % \
           (self.info.filename, self.info.swf_version,
            self.info.width, self.info.height,
-           self.info.framerate, self.info.compression)
+           self.info.framerate, self.info.compression), file=stderr)
     self.writer = SWFWriter(self.info.filename, self.swf_version,
                             (0,self.info.width*20, 0,self.info.height*20),
                             self.info.framerate, self.info.compression)
@@ -408,7 +408,7 @@ class SWFOutputStream(MovieOutputStream):
 
   def define_shape(self, w, h, data, alpha=False):
     if self.debug:
-      print >>stderr, 'define_shape:', (w,h), len(data)
+      print('define_shape:', (w,h), len(data), file=strerr)
     self.writer.start_tag()
     image_id = self.writer.newid()
     self.writer.writeui16(image_id)
@@ -434,7 +434,7 @@ class SWFOutputStream(MovieOutputStream):
 
   def place_object2(self, shape_id, x, y, depth):
     if self.debug:
-      print >>stderr, 'place_object2:', shape_id, (x,y), depth
+      print('place_object2:', shape_id, (x,y), depth, file=stderr)
     # PlaceObject2
     self.writer.start_tag()
     if shape_id:
@@ -452,7 +452,7 @@ class SWFOutputStream(MovieOutputStream):
   # if you leave objects on the screen, it gets verry slow.
   def remove_object(self, depth):
     if self.debug:
-      print >>stderr, 'remove_object:', depth
+      print('remove_object:', depth, file=stderr)
     # RemoveObject2
     self.writer.start_tag()
     self.writer.writeui16(depth)
@@ -535,7 +535,7 @@ class SWFShapeStream(SWFOutputStream):
     SWFOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
-        print >>stderr, 'paint:', (x0,y0), (w,h)
+        print('paint:', (x0,y0), (w,h), file=stderr)
       if self.screen.paint_image(x0, y0, w, h, data):
         # do not attempt to create another shape object if
         # its entire area is already covered by other objects which are
@@ -557,7 +557,7 @@ class SWFShapeStream(SWFOutputStream):
       else:
         addobjs.append((depth,x0,y0,w,h))
     # Remove completely overriden objects.
-    for depth in self.replaced.iterkeys():
+    for depth in self.replaced.keys():
       self.remove_object(depth)
     for (depth,x0,y0,w,h) in addobjs:
       # Image & Shape & Place tags.
@@ -614,7 +614,7 @@ class SWFVideoStream(SWFOutputStream):
     SWFOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
-        print >>stderr, 'paint:', (x0,y0), (w,h)
+        print('paint:', (x0,y0), (w,h), file=stderr)
       if self.screen.paint_image(x0, y0, w, h, data):
         self.painted = True
     return
@@ -624,8 +624,8 @@ class SWFVideoStream(SWFOutputStream):
       r = []
       changed = self.is_keyframe
       self.screen.prepare_image()
-      for y in xrange(self.screen.vblocks):
-        for x in xrange(self.screen.hblocks):
+      for y in range(self.screen.vblocks):
+        for x in range(self.screen.hblocks):
           data = self.screen.get_block_change(x, y)
           r.append(data)
           if data:
@@ -699,7 +699,7 @@ class ImageSequenceStream(MovieOutputStream):
   def paint_frame(self, (images, othertags, cursor_info)):
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
-        print >>stderr, 'paint:', (x0,y0), (w,h)
+        print('paint:', (x0,y0), (w,h), file=stderr)
       self.screen.paint_image(x0, y0, w, h, data)
     if cursor_info:
       (cursor_image, cursor_pos) = cursor_info
@@ -714,7 +714,7 @@ class ImageSequenceStream(MovieOutputStream):
   def next_frame(self):
     fname = self.filename_template % self.output_frames
     if self.debug:
-      print >>stderr, 'writing:', fname
+      print('writing:', fname, file=stderr)
     self.screen.prepare_image(self.cursor_image, self.cursor_offset, self.cursor_pos)
     self.screen.dump_image(fname)
     MovieOutputStream.next_frame(self)
@@ -746,10 +746,10 @@ class MPEGVideoStream(MovieOutputStream):
 
   def open (self):
     MovieOutputStream.open(self)
-    print >>stderr, 'Creating MPEG: %r: codec=%s, size=%dx%d, framerate=%s' % \
+    print('Creating MPEG: %r: codec=%s, size=%dx%d, framerate=%s' % \
           (self.info.filename, self.mpeg_codec,
            self.info.width, self.info.height,
-           self.info.framerate)
+           self.info.framerate), file=stderr)
 
     (x,y,w,h) = self.info.clipping
     # Crop to match codec constraints
@@ -774,7 +774,7 @@ class MPEGVideoStream(MovieOutputStream):
     else:
       params['bitrate'] = 9800000
     if self.debug:
-      print >>stderr, 'Setting codec to ', params
+      print('Setting codec to ', params, file=stderr)
     self.encoder = vcodec.Encoder(params)
     self.out_file = open(self.info.filename, 'wb')
     return
@@ -783,7 +783,7 @@ class MPEGVideoStream(MovieOutputStream):
     MovieOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0, y0), (w, h, data)) in images:
       if self.debug:
-        print >>stderr, 'paint:', (x0,y0), (w,h)
+        print('paint:', (x0,y0), (w,h), file=stderr)
       self.screen.paint_image(x0, y0, w, h, data)
     if cursor_info:
       (cursor_image, cursor_pos) = cursor_info
@@ -797,7 +797,7 @@ class MPEGVideoStream(MovieOutputStream):
 
   def next_frame (self):
     if self.debug:
-      print >>stderr, 'prepare_image:', (self.screen.out_width, self.screen.out_height)
+      print('prepare_image:', (self.screen.out_width, self.screen.out_height), file=stderr)
     img = self.screen.prepare_image(self.cursor_image, self.cursor_offset, self.cursor_pos)
     strFrame = convert_image_to_string_rgb(img)
     bmpFrame = vcodec.VFrame(vcodec.formats.PIX_FMT_RGB24,
@@ -849,7 +849,7 @@ class FLVVideoStream(MovieOutputStream):
     self.othertags.extend(othertags)
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
-        print >>stderr, 'paint:', (x0,y0), (w,h)
+        print('paint:', (x0,y0), (w,h), file=stderr)
       self.screen.paint_image(x0, y0, w, h, data)
     if cursor_info:
       (cursor_image, cursor_pos) = cursor_info
@@ -864,8 +864,8 @@ class FLVVideoStream(MovieOutputStream):
   def next_frame(self):
     r = []
     self.screen.prepare_image(self.cursor_image, self.cursor_offset, self.cursor_pos)
-    for y in xrange(self.screen.vblocks):
-      for x in xrange(self.screen.hblocks):
+    for y in range(self.screen.vblocks):
+      for x in range(self.screen.hblocks):
         r.append(self.screen.get_block_change(x, y))
     # write FLV tag
     self.writer.start_tag()
@@ -949,7 +949,7 @@ class MovieBuilder:
   
   def step(self):
     if self.debug:
-      print >>stderr, 'step: %d -> %d' % (self.frameid, self.frameid+1)
+      print('step: %d -> %d' % (self.frameid, self.frameid+1), file=stderr)
     self.frameid += 1
     self.stream.paint_frame(self.movie.get_frame(self.frameid))
     if ((self.frameid % self.pinterval) == 0 and 
@@ -958,12 +958,12 @@ class MovieBuilder:
       if img:
         self.preserved[self.frameid] = img
         if self.debug:
-          print >>stderr, 'preserve: %d' % self.frameid
+          print('preserve: %d' % self.frameid, file=stderr)
     return
 
   def seek(self, frameid):
     if self.debug:
-      print >>stderr, 'seek: %d -> %d' % (self.frameid, frameid)
+      print('seek: %d -> %d' % (self.frameid, frameid), file=stderr)
     if frameid == 0:
       self.frameid = -1
       self.step()
@@ -975,7 +975,7 @@ class MovieBuilder:
       if frameid < self.frameid:
         prev = 0
         image = None
-        for (fid,img) in self.preserved.iteritems():
+        for (fid,img) in self.preserved.items():
           if fid <= frameid and prev <= fid:
             (prev, image) = (fid, img)
         if image:
@@ -985,9 +985,9 @@ class MovieBuilder:
         prev = self.frameid
       # replay the sequences.
       if self.debug:
-        print >>stderr, 'range:', prev, frameid
+        print('range:', prev, frameid, file=stderr)
       self.frameid = prev
-      for fid in xrange(prev, frameid):
+      for fid in range(prev, frameid):
         self.step()
       if self.movie.info.mp3 and self.mp3seek:
         self.movie.info.mp3.seek_frame(frameid / self.movie.info.framerate)
@@ -1000,12 +1000,12 @@ class MovieBuilder:
 
   def build(self, frames=None):
     if not frames:
-      frames = range(self.movie.nframes)
+      frames = list(range(self.movie.nframes))
     self.start()
     for frameid in frames:
       self.seek(frameid)
       if self.debug:
-        print >>stderr, 'next_frame'
+        print('next_frame', file=stderr)
       if self.verbose:
         stderr.write('.'); stderr.flush()
       if self.movie.info.mp3:
@@ -1016,6 +1016,6 @@ class MovieBuilder:
       self.stream.next_frame()
     self.finish()
     if self.verbose:
-      print >>stderr, '%d frames written (duration=%.1fs)' % \
-            (len(frames), len(frames)/self.movie.info.framerate)
+      print('%d frames written (duration=%.1fs)' % \
+            (len(frames), len(frames)/self.movie.info.framerate), file=stderr)
     return

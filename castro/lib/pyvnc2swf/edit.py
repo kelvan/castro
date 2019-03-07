@@ -24,8 +24,8 @@
 ##
 
 import sys, re
-from movie import SWFInfo, MovieContainer
-from output import FLVVideoStream, MPEGVideoStream, SWFVideoStream, \
+from .movie import SWFInfo, MovieContainer
+from .output import FLVVideoStream, MPEGVideoStream, SWFVideoStream, \
      SWFShapeStream, ImageSequenceStream, MovieBuilder
 stderr = sys.stderr
 
@@ -60,7 +60,7 @@ def range2list(s, n0, n1, step=1):
         raise RangeError('%d: must be in %d...%d' % (b,n0,n1))
       if n1 < e:
         raise RangeError('%d: must be in %d...%d' % (e,n0,n1))
-      r.extend(xrange(b,e+1,step))
+      r.extend(range(b,e+1,step))
   return r
 
 
@@ -99,7 +99,7 @@ def reorganize(info, stream, moviefiles, range_str='-',
 def main(argv):
   import getopt
   def usage():
-    print >>stderr, '''usage: %s
+    print('''usage: %s
     [-d] [-c] [-t type] [-f|-F frames] [-a mp3file] [-r framerate]
     [-S mp3sampleskip] [-C WxH+X+Y] [-B blocksize] [-K keyframe]
     [-R framestep] [-s scaling]
@@ -127,7 +127,7 @@ def main(argv):
     -b: disable seekbar.
     -l: disable loop.
     -z: make the movie scalable.
-    ''' % argv[0]
+    ''' % argv[0], file=stderr)
     return 100
   try:
     (opts, args) = getopt.getopt(argv[1:], 'dr:o:t:cHa:S:C:B:K:f:F:R:s:blz')
@@ -154,12 +154,12 @@ def main(argv):
     elif k == '-t':
       v = v.lower()
       if v not in ('swf5','swf7','mpeg','mpg','flv','png','bmp','gif'):
-        print >>stderr, 'Invalid output type:', v
+        print('Invalid output type:', v, file=stderr)
         return usage()
       streamtype = v
     elif k == '-a':
       fp = file(v, 'rb')
-      print >>stderr, 'Reading mp3 file: %s...' % v
+      print('Reading mp3 file: %s...' % v, file=stderr)
       info.reg_mp3blocks(fp)
       fp.close()
     elif k == '-S':
@@ -171,7 +171,7 @@ def main(argv):
       try:
         info.set_clipping(v)
       except ValueError:
-        print >>stderr, 'Invalid clipping specification:', v
+        print('Invalid clipping specification:', v, file=stderr)
         return usage()
     elif k == '-B':
       blocksize = int(v)
@@ -199,10 +199,10 @@ def main(argv):
     elif k == '-z':
       info.set_scalable(True)
   if not args:
-    print >>stderr, 'Specify at least one input movie.'
+    print('Specify at least one input movie.', file=stderr)
     return usage()
   if not info.filename:
-    print >>stderr, 'Specify exactly one output file.'
+    print('Specify exactly one output file.', file=stderr)
     return usage()
   if not streamtype:
     v = info.filename
@@ -219,10 +219,10 @@ def main(argv):
     elif v.endswith('.flv'):
       streamtype = 'flv'
     else:
-      print >>stderr, 'Unknown stream type.'
+      print('Unknown stream type.', file=stderr)
       return 100
   if streamtype == 'mpeg' and not MPEGVideoStream:
-    print >>stderr, 'MPEGVideoStream is not supported.'
+    print('MPEGVideoStream is not supported.', file=stderr)
     return 100
   stream = None
   if streamtype == 'swf5':
@@ -241,8 +241,8 @@ def main(argv):
                       step=step, kfinterval=kfinterval, 
                       mp3seek=mp3seek, mp3skip=mp3skip,
                       debug=debug)
-  except RangeError, e:
-    print >>stderr, 'RangeError:', e
+  except RangeError as e:
+    print('RangeError:', e, file=stderr)
     return 100
 
 if __name__ == "__main__": sys.exit(main(sys.argv))

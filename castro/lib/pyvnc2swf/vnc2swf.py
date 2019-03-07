@@ -24,14 +24,14 @@
 ##
 
 import sys, os, os.path, time, socket, re
-import Tkinter, tkFileDialog, tkMessageBox, tempfile, shutil
-from tkSimpleDialog import Dialog
+import tkinter, tkinter.filedialog, tkinter.messagebox, tempfile, shutil
+from tkinter.simpledialog import Dialog
 from struct import pack, unpack
 import threading
 
-from movie import SWFInfo
-from output import StreamFactory
-from rfb import RFBError, RFBNetworkClient, RFBFileParser, RFBNetworkClientForRecording, RFBStreamConverter
+from .movie import SWFInfo
+from .output import StreamFactory
+from .rfb import RFBError, RFBNetworkClient, RFBFileParser, RFBNetworkClientForRecording, RFBStreamConverter
 stderr = sys.stderr
 
 
@@ -41,7 +41,7 @@ class tkPasswordDialog(Dialog):
 
   def __init__(self, title, prompt, master=None):
     if not master:
-      master = Tkinter._default_root
+      master = tkinter._default_root
     self.prompt = prompt
     Dialog.__init__(self, master, title)
     return
@@ -52,10 +52,10 @@ class tkPasswordDialog(Dialog):
     return
   
   def body(self, master):
-    w = Tkinter.Label(master, text=self.prompt, justify=Tkinter.LEFT)
-    w.grid(row=0, padx=5, sticky=Tkinter.W)
-    self.entry = Tkinter.Entry(master, name="entry", show="*")
-    self.entry.grid(row=1, padx=5, sticky=Tkinter.W+Tkinter.E)
+    w = tkinter.Label(master, text=self.prompt, justify=tkinter.LEFT)
+    w.grid(row=0, padx=5, sticky=tkinter.W)
+    self.entry = tkinter.Entry(master, name="entry", show="*")
+    self.entry.grid(row=1, padx=5, sticky=tkinter.W+tkinter.E)
     return self.entry
   
   def validate(self):
@@ -69,7 +69,7 @@ class tkEntryDialog(Dialog):
 
   def __init__(self, title, prompt, pattern=None, default=None, master=None):
     if not master:
-      master = Tkinter._default_root
+      master = tkinter._default_root
     self.prompt = prompt
     self.default = default
     self.pattern = re.compile(pattern)
@@ -82,10 +82,10 @@ class tkEntryDialog(Dialog):
     return
   
   def body(self, master):
-    w = Tkinter.Label(master, text=self.prompt, justify=Tkinter.LEFT)
-    w.grid(row=0, padx=5, sticky=Tkinter.W)
-    self.entry = Tkinter.Entry(master, name="entry")
-    self.entry.grid(row=1, padx=5, sticky=Tkinter.W+Tkinter.E)
+    w = tkinter.Label(master, text=self.prompt, justify=tkinter.LEFT)
+    w.grid(row=0, padx=5, sticky=tkinter.W)
+    self.entry = tkinter.Entry(master, name="entry")
+    self.entry.grid(row=1, padx=5, sticky=tkinter.W+tkinter.E)
     if self.default:
       self.entry.insert(0, self.default)
     return self.entry
@@ -155,13 +155,13 @@ class VNC2SWFWithTk:
     self.port = port
     self.recording = False
     self.exit_immediately = False
-    self.root = Tkinter.Tk()
+    self.root = tkinter.Tk()
     self.root.title('vnc2swf.py')
     self.root.wm_protocol('WM_DELETE_WINDOW', self.file_exit)
-    self.toggle_button = Tkinter.Button(master=self.root)
-    self.toggle_button.pack(side=Tkinter.LEFT)
-    self.status_label = Tkinter.Label(master=self.root, justify=Tkinter.LEFT)
-    self.status_label.pack(side=Tkinter.LEFT)
+    self.toggle_button = tkinter.Button(master=self.root)
+    self.toggle_button.pack(side=tkinter.LEFT)
+    self.status_label = tkinter.Label(master=self.root, justify=tkinter.LEFT)
+    self.status_label.pack(side=tkinter.LEFT)
     self.setup_menubar()
     self.file_new(True)
     return
@@ -178,7 +178,7 @@ class VNC2SWFWithTk:
       if not x: return
       m = re.match(r'^([^:/]*)(:(\d+))?', x)
       if not m:
-        tkMessageBox.showerror('Invalid address: %s' % x)
+        tkinter.messagebox.showerror('Invalid address: %s' % x)
         return
       (host, port) = (m.group(1) or 'localhost', int(m.group(3) or '5900'))
       if host != self.host or port != self.port and self.file_new_ask():
@@ -210,7 +210,7 @@ class VNC2SWFWithTk:
         self.file_new(True)
       return
 
-    record_type = Tkinter.StringVar(self.root)
+    record_type = tkinter.StringVar(self.root)
     record_type.set(self.outtype)
     def option_type():
       if record_type.get() != self.outtype and self.file_new_ask():
@@ -220,17 +220,17 @@ class VNC2SWFWithTk:
         record_type.set(self.outtype)
       return
 
-    menubar = Tkinter.Menu(self.root)
-    self.file_menu = Tkinter.Menu(menubar, tearoff=0)
+    menubar = tkinter.Menu(self.root)
+    self.file_menu = tkinter.Menu(menubar, tearoff=0)
     self.file_menu.add_command(label="New...", underline=0, command=self.file_new, accelerator='Alt-N')
     self.file_menu.add_command(label="Save as...", underline=0, command=self.file_saveas, accelerator='Alt-S')
     self.file_menu.add_separator()
     self.file_menu.add_command(label="Exit", underline=1, command=self.file_exit)
-    self.option_menu = Tkinter.Menu(menubar, tearoff=0)
+    self.option_menu = tkinter.Menu(menubar, tearoff=0)
     self.option_menu.add_command(label="Server...", underline=0, command=option_server)
     self.option_menu.add_command(label="Clipping...", underline=0, command=option_clipping)
     self.option_menu.add_command(label="Framerate...", underline=0, command=option_framerate)
-    type_submenu = Tkinter.Menu(self.option_menu, tearoff=0)
+    type_submenu = tkinter.Menu(self.option_menu, tearoff=0)
     for (k,v,_,_) in self.FILE_TYPES:
       type_submenu.add_radiobutton(label=k, value=v, variable=record_type, command=option_type)
     self.option_menu.add_cascade(label="Type", underline=0, menu=type_submenu)
@@ -287,7 +287,7 @@ class VNC2SWFWithTk:
   # File->New
   def file_new_ask(self):
     if self.frames():
-      if not tkMessageBox.askokcancel('New file', 'Discard the current session?'):
+      if not tkinter.messagebox.askokcancel('New file', 'Discard the current session?'):
         return False
     return True
   
@@ -319,7 +319,7 @@ class VNC2SWFWithTk:
   def file_saveas(self):
     if self.recording or not self.frames(): return
     (ext,desc) = dict([ (t,(ext,desc)) for (_,t,desc,ext) in self.FILE_TYPES ])[self.outtype]
-    filename = tkFileDialog.asksaveasfilename(
+    filename = tkinter.filedialog.asksaveasfilename(
       master=self.root, title='Vnc2swf Save As', defaultextension=ext,
       filetypes=[(desc,'*'+ext), ("All Files", "*")]
       )
@@ -343,7 +343,7 @@ class VNC2SWFWithTk:
       self.exit_immediately = True
     else:
       if self.frames():
-        if not tkMessageBox.askokcancel('Exit', 'Discard the current session?'):
+        if not tkinter.messagebox.askokcancel('Exit', 'Discard the current session?'):
           return
       self.root.destroy()
     return
@@ -353,21 +353,21 @@ class VNC2SWFWithTk:
     self.client.tk_init(self.root)
     try:
       self.client.init().auth().start()
-    except socket.error, e:
+    except socket.error as e:
       return self.error('Socket error', e)
-    except RFBError, e:
+    except RFBError as e:
       return self.error('RFB protocol error', e)
     if self.debug:
-      print >>stderr, 'start recording'
+      print('start recording', file=stderr)    
     self.recording = True
     self.set_status()
     if self.subprocess:
       self.subprocess.start()
     try:
       self.client.loop()
-    except socket.error, e:
+    except socket.error as e:
       return self.error('Socket error', e)
-    except RFBError, e:
+    except RFBError as e:
       return self.error('RFB protocol error', e)
     if self.debug:
       print >>stderr, 'stop recording'
@@ -382,8 +382,8 @@ class VNC2SWFWithTk:
 
   # Displays an error message.
   def error(self, msg, arg):
-    print >>stderr, arg
-    tkMessageBox.showerror('vnc2swf: %s' % msg, str(arg))
+    print(arg, file=stderr)
+    tkinter.messagebox.showerror('vnc2swf: %s' % msg, str(arg))
     return
 
   # Runs Tk mainloop.
@@ -416,12 +416,12 @@ def vnc2swf(info, outtype='swf5', host='localhost', port=5900,
                                 preferred_encoding=preferred_encoding, debug=debug)
   try:
     client.init().auth().start()
-  except socket.error, e:
-    print >>stderr, 'Socket error:', e
-  except RFBError, e:
-    print >>stderr, 'RFB error:', e
+  except socket.error as e:
+    print('Socket error:', e, file=stderr)
+  except RFBError as e:
+    print('RFB error:', e, file=stderr)
   if debug:
-    print >>stderr, 'start recording'
+    print('start recording', file=stderr)
   if subprocess:
     subprocess.start()
   for i in range(reconnect + 1)[::-1]:
@@ -454,27 +454,27 @@ def vnc2swf(info, outtype='swf5', host='localhost', port=5900,
   # Contributed by David Fraser
   if merge:
     tmpfile = os.tempnam(os.path.dirname(info.filename), "vncmerge-") + os.path.basename(info.filename)
-    print >>stderr, "renaming %s to %s for merge" % (info.filename, tmpfile)
+    print("renaming %s to %s for merge" % (info.filename, tmpfile), file=stderr)
     if os.path.exists(tmpfile):
       os.remove(tmpfile)
     os.rename( info.filename, tmpfile )
     try:
       # TODO: sort out getting outputfilename properly
       audiofilename = subprocess.outputfile
-      import edit
+      from . import edit
       args = ["-d", "-o", info.filename, "-a", audiofilename, tmpfile]
       if not edit.main(args):
-        print >>stderr, "Error doing merge..."
+        print("Error doing merge...", file=stderr)
     finally:
       origexists, tmpexists = os.path.exists(info.filename), os.path.exists(tmpfile)
-      print >>stderr, "origexists %r, tmpexists %r" % (origexists, tmpexists)
+      print("origexists %r, tmpexists %r" % (origexists, tmpexists), file=stderr)
       if origexists and tmpexists:
         try:
           os.remove(tmpfile)
-        except OSError, e:
-          print >>stderr, "Could not remove temporary file: %s" % e
+        except OSError as e:
+          print("Could not remove temporary file: %s" % e, file=stderr)
       elif tmpexists:
-        print >>stderr, "only tmpfile remains after merge, renaming to original (but will not contain sound)"
+        print("only tmpfile remains after merge, renaming to original (but will not contain sound)", file=stderr)
         os.rename( tmpfile, info.filename )
   return
 
@@ -483,9 +483,9 @@ def vnc2swf(info, outtype='swf5', host='localhost', port=5900,
 class RecordingThread:
   def __init__(self, outputfile):
     try:
-      import record_sound
-    except ImportError, e:
-      print >>stderr, "unable to use pymedia?:", e
+      from . import record_sound
+    except ImportError as e:
+      print("unable to use pymedia?:", e, file=stderr)
       raise
     self.outputfile = outputfile
     self.recorder = record_sound.voiceRecorder(self.outputfile)
@@ -505,10 +505,10 @@ class Subprocess:
     try:
       import subprocess
     except ImportError:
-      print >>stderr, '-S option requires Python 2.4 or newer.'
+      print('-S option requires Python 2.4 or newer.', file=stderr)
       sys.exit(111)
     if not hasattr(os, 'kill'):
-      print >>stderr, '-S option works only on Unix or Mac OS X.'
+      print('-S option works only on Unix or Mac OS X.', file=stderr)
       sys.exit(111)
     self.args = s.split(' ')
     self.popen = None
@@ -531,9 +531,9 @@ class Subprocess:
 def main(argv):
   import getopt
   def usage():
-    print ('usage: %s [-d] [-n] [-o filename] [-t {flv|mpeg|swf5|swf7|vnc}]'
+    print(('usage: %s [-d] [-n] [-o filename] [-t {flv|mpeg|swf5|swf7|vnc}]'
            ' [-e encoding] [-N] [-C clipping] [-r framerate] [-s scaling] [-z] [-m] [-a] [-V]'
-           ' [-S subprocess] [-P pwdfile] [host[:display] [port]]' % argv[0])
+           ' [-S subprocess] [-P pwdfile] [host[:display] [port]]' % argv[0]))
     return 100
   try:
     (opts, args) = getopt.getopt(argv[1:], 'dno:t:e:NC:r:S:P:s:zmaVR:')
@@ -561,7 +561,7 @@ def main(argv):
       try:
         info.set_clipping(v)
       except ValueError:
-        print 'Invalid clipping specification:', v
+        print('Invalid clipping specification:', v)
         return usage()
     elif k == "-r":
       info.framerate = int(v)
@@ -583,7 +583,7 @@ def main(argv):
     else:
       outtype = 'swf5'
   if outtype not in ('swf5','swf7','vnc','mpeg','flv'):
-    print 'Please specify the output type or file extension.'
+    print('Please specify the output type or file extension.')
     return usage()
   if cursor:
     preferred_encoding += (-232,-239,)
@@ -598,7 +598,7 @@ def main(argv):
     port = int(args[1])
   if console:
     if not info.filename:
-      print 'Please specify the output filename.'
+      print('Please specify the output filename.')
       return usage()
     vncfile = None
     if isfile:

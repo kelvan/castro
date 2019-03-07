@@ -53,21 +53,21 @@ class MP3Storage:
     if self.isstereo == None:
       self.isstereo = isstereo
     elif self.isstereo != isstereo:
-      print >>stderr, 'mp3: isstereo does not match!'
+      print('mp3: isstereo does not match!', file=stderr)
     return
 
   def set_bit_rate(self, bit_rate):
     if self.bit_rate == None:
       self.bit_rate = bit_rate
     elif self.bit_rate != bit_rate:
-      print >>stderr, 'mp3: bit_rate does not match! (variable bitrate mp3 cannot be used for SWF)'
+      print('mp3: bit_rate does not match! (variable bitrate mp3 cannot be used for SWF)', file=stderr)
     return
   
   def set_sample_rate(self, sample_rate):
     if self.sample_rate == None:
       self.sample_rate = sample_rate
     elif self.sample_rate != sample_rate:
-      print >>stderr, 'mp3: sample_rate does not match! (variable bitrate mp3 cannot be used for SWF)'
+      print('mp3: sample_rate does not match! (variable bitrate mp3 cannot be used for SWF)', file=stderr)
     return
 
   def set_initial_skip(self, initial_skip):
@@ -167,7 +167,7 @@ class MP3Reader:
         # TAG - ignored
         data = x[3]+self.read(128-4)
         if verbose:
-          print >>stderr, 'TAG', repr(data)
+          print('TAG', repr(data), file=stderr)
         continue
       elif x.startswith('ID3'):
         # ID3 - ignored
@@ -177,20 +177,20 @@ class MP3Reader:
         size = (s[0]<<21) | (s[1]<<14) | (s[2]<<7) | s[3]
         data = fp.read(size)
         if verbose:
-          print >>stderr, 'ID3', repr(data)
+          print('ID3', repr(data), file=stderr)
         continue
       h = unpack('>L', x)[0]
       #if (h & 0xfffb0003L) != 0xfffb0000L: continue
       # All sync bits (b31-21) are set?
-      if (h & 0xffe00000L) != 0xffe00000L: continue
+      if (h & 0xffe00000) != 0xffe00000: continue
       # MPEG Audio Version ID (0, 2 or 3)
-      version = (h & 0x00180000L) >> 19
+      version = (h & 0x00180000) >> 19
       if version == 1: continue
       # Layer (3: mp3)
-      layer = 4 - ((h & 0x00060000L) >> 17)
+      layer = 4 - ((h & 0x00060000) >> 17)
       if layer == 4: continue
       # Protection
-      protected = not (h & 0x00010000L)
+      protected = not (h & 0x00010000)
       # Bitrate
       b = (h & 0xf000) >> 12
       if b == 0 or b == 15: continue
@@ -223,8 +223,8 @@ class MP3Reader:
         # skip 16bit CRC
         self.read(2)
       if verbose:
-        print >>stderr, 'Frame: bit_rate=%dk, sample_rate=%d, framesize=%d' % \
-              (bit_rate, sample_rate, framesize)
+        print('Frame: bit_rate=%dk, sample_rate=%d, framesize=%d' % \
+              (bit_rate, sample_rate, framesize), file=stderr)
       data = x+self.read(framesize-4)
       self.storage.add_frame(nsamples, data)
       totalsamples += nsamples
