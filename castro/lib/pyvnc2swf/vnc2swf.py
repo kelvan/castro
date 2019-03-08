@@ -429,20 +429,20 @@ def vnc2swf(info, outtype='swf5', host='localhost', port=5900,
       client.loop()
     except KeyboardInterrupt:
       break
-    except socket.error, e:
-      print >>stderr, 'Socket error:', e
+    except socket.error as e:
+      print('Socket error:', e, file=stderr)
       if i:
         time.sleep(1)
         client.init().auth().start()
-    except RFBError, e:
-      print >>stderr, 'RFB error:', e
+    except RFBError as e:
+      print('RFB error:', e, file=stderr)
       if i:
         time.sleep(1)
         client.init().auth().start()
     else:
       break
   if debug:
-    print >>stderr, 'stop recording'
+    print('stop recording', file=stderr)
   if subprocess:
     subprocess.stop()
   client.close()
