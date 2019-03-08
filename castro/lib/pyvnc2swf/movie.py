@@ -299,7 +299,7 @@ class VNC2SWF_Parser(SWFParser):
     #assert not (flags & 64)
     #assert not (flags & 128)
     if self.debug:
-      print('Place', flags, depth, sid, (scalex,scaley, rot0,rot1, transx,transy, file=stderr)
+      print('Place', flags, depth, sid, (scalex,scaley, rot0,rot1, transx,transy), file=stderr)
     if depth == CURSOR_DEPTH:
       # this is a cursor sprite!
       if sid:
