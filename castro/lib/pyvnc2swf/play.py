@@ -83,7 +83,8 @@ class PygameMoviePlayer(MovieOutputStream):
     #self.mp3_out = pymedia.audio.sound.Output(44100,2,pymedia.audio.sound.AFMT_S16_LE)
     return
 
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme):
+    (images, othertags, cursor_info) = xxx_todo_changeme
     for ((x0,y0), (w,h,data)) in images:
       self.screen.paint_image(x0, y0, w, h, data)
     if cursor_info:

@@ -55,7 +55,9 @@ class SWFScreen:
     return '<SWFScreen: %dx%d at (%d, %d), output=%dx%d>' % \
            (self.width, self.height, self.x0, self.y0, self.out_width, self.out_height)
 
-  def adjust_cursor_pos(self, (x,y), (dx,dy)):
+  def adjust_cursor_pos(self, xxx_todo_changeme, xxx_todo_changeme1):
+    (x,y) = xxx_todo_changeme
+    (dx,dy) = xxx_todo_changeme1
     x = x - self.x0 - dx
     y = y - self.y0 - dy
     if self.scaling:
@@ -86,7 +88,8 @@ class SWFScreen:
     return
 
   # returns True if the image is actually painted.
-  def paint_image(self, x0, y0, w, h, (format, data)):
+  def paint_image(self, x0, y0, w, h, xxx_todo_changeme2):
+    (format, data) = xxx_todo_changeme2
     x0 -= self.x0
     y0 -= self.y0
     if not (w and h and 0 < x0+w and x0 < self.width and 0 < y0+h and y0 < self.height):
@@ -299,7 +302,8 @@ class MovieOutputStream:
   def set_keyframe(self):
     return
   
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme3):
+    (images, othertags, cursor_info) = xxx_todo_changeme3
     if cursor_info:
       (cursor_image, cursor_pos) = cursor_info
       self.cursor_image = cursor_image or self.cursor_image
@@ -460,7 +464,8 @@ class SWFOutputStream(MovieOutputStream):
     return
 
   # paint cursor
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme4):
+    (images, othertags, cursor_info) = xxx_todo_changeme4
     MovieOutputStream.paint_frame(self, (images, othertags, cursor_info))
     self.othertags.extend(othertags)
     return
@@ -531,7 +536,8 @@ class SWFShapeStream(SWFOutputStream):
     self.place_object2(self.define_shape(w, h, data), x, y, depth)
     return
 
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme5):
+    (images, othertags, cursor_info) = xxx_todo_changeme5
     SWFOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
@@ -610,7 +616,8 @@ class SWFVideoStream(SWFOutputStream):
     self.painted = False
     return
 
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme6):
+    (images, othertags, cursor_info) = xxx_todo_changeme6
     SWFOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
@@ -696,7 +703,8 @@ class ImageSequenceStream(MovieOutputStream):
     self.screen = SWFScreen(x, y, w, h, scaling=self.info.scaling)
     return
   
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme7):
+    (images, othertags, cursor_info) = xxx_todo_changeme7 
     for ((x0,y0), (w,h,data)) in images:
       if self.debug:
         print('paint:', (x0,y0), (w,h), file=stderr)
@@ -779,7 +787,8 @@ class MPEGVideoStream(MovieOutputStream):
     self.out_file = open(self.info.filename, 'wb')
     return
 
-  def paint_frame (self, (images, othertags, cursor_info)):
+  def paint_frame (self, xxx_todo_changeme8):
+    (images, othertags, cursor_info) = xxx_todo_changeme8
     MovieOutputStream.paint_frame(self, (images, othertags, cursor_info))
     for ((x0, y0), (w, h, data)) in images:
       if self.debug:
@@ -844,7 +853,8 @@ class FLVVideoStream(MovieOutputStream):
     self.set_keyframe()
     return
 
-  def paint_frame(self, (images, othertags, cursor_info)):
+  def paint_frame(self, xxx_todo_changeme9):
+    (images, othertags, cursor_info) = xxx_todo_changeme9
     MovieOutputStream.paint_frame(self, (images, othertags, cursor_info))
     self.othertags.extend(othertags)
     for ((x0,y0), (w,h,data)) in images:

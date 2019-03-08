@@ -528,10 +528,12 @@ class DataWriter:
       self.fp.write(pack('>L', x))
     return
 
-  def writergb(self, (r,g,b)):
+  def writergb(self, xxx_todo_changeme):
+    (r,g,b) = xxx_todo_changeme
     self.writeui8(r,g,b)
     return
-  def writergba(self, (r,g,b,a)):
+  def writergba(self, xxx_todo_changeme1):
+    (r,g,b,a) = xxx_todo_changeme1
     self.writeui8(r,g,b,a)
     return
 
@@ -575,7 +577,8 @@ class DataWriter:
     self.write('\x00')
     return
 
-  def writerect(self, (xmin,xmax,ymin,ymax)):
+  def writerect(self, xxx_todo_changeme2):
+    (xmin,xmax,ymin,ymax) = xxx_todo_changeme2
     '''NOT width and height!'''
     assert xmin <= xmax and ymin <= ymax
     n = needbits((xmin,xmax,ymin,ymax), 1)
@@ -587,7 +590,8 @@ class DataWriter:
     self.finishbits()
     return
 
-  def writematrix(self, (scalex,scaley, rot0,rot1, transx,transy)):
+  def writematrix(self, xxx_todo_changeme3):
+    (scalex,scaley, rot0,rot1, transx,transy) = xxx_todo_changeme3
     if scalex != None:
       scalex = int(scalex*65536)
       scaley = int(scaley*65536)

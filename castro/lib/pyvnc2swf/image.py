@@ -62,10 +62,12 @@ try:
     return pygame.image.fromstring(data, (w, h), 'RGBA')
   def create_image_from_string_rgb_flipped(w, h, data):
     return pygame.image.fromstring(data, (w, h), 'RGB', 1)
-  def crop_image(img, (x,y,w,h)):
+  def crop_image(img, xxx_todo_changeme):
+    (x,y,w,h) = xxx_todo_changeme
     (wm,hm) = img.get_size()
     return img.subsurface((x,y,upperbound(wm-x,w),upperbound(hm-y,h)))
-  def paste_image(dest, src, (x0, y0)):
+  def paste_image(dest, src, xxx_todo_changeme1):
+    (x0, y0) = xxx_todo_changeme1
     return dest.blit(src, (x0, y0))
   def save_image(img, fname):
     if not fname.endswith('.bmp'):
@@ -105,10 +107,12 @@ except ImportError:
     return Image.fromstring('RGBA', (w, h), data, 'raw', 'ARGB')
   def create_image_from_string_rgb_flipped(w, h, data):
     return Image.fromstring('RGB', (w, h), data, 'raw', 'RGB').transpose(Image.FLIP_TOP_BOTTOM)
-  def crop_image(img, (x0,y0,w,h)):
+  def crop_image(img, xxx_todo_changeme2):
+    (x0,y0,w,h) = xxx_todo_changeme2
     (wm,hm) = img.size
     return img.crop((x0, y0, upperbound(x0+w,wm), upperbound(y0+h,hm)))
-  def paste_image(dest, src, (x0, y0)):
+  def paste_image(dest, src, xxx_todo_changeme3):
+    (x0, y0) = xxx_todo_changeme3
     return dest.paste(src, (x0, y0))
   def save_image(img, fname):
     return img.save(fname)
@@ -118,7 +122,8 @@ except ImportError:
     return img.tostring('raw', 'RGB')
   def convert_image_to_string_xrgb(img):
     return img.tostring('raw', 'XRGB')
-  def solid_fill(dest, (x0,y0,w,h), color):
+  def solid_fill(dest, xxx_todo_changeme4, color):
+    (x0,y0,w,h) = xxx_todo_changeme4
     return dest.paste(color, (x0, y0, x0+w, y0+h))
   def scale_image(img, scaling):
     img = img.copy()
