@@ -124,7 +124,7 @@ class DataParser:
       c = self.read(1)
       if c == '\x00': break
       s.append(c)
-    return str(''.join(s), self.encoding)
+    return unicode(''.join(s), self.encoding)
 
 
 ##  SWFParser
