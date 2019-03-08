@@ -308,11 +308,11 @@ def desfunc(block, keys):
   work = ((right >> 8) ^ leftt) & 0x00ff00ff
   leftt ^= work
   right ^= (work << 8)
-  right = ((right << 1) | ((right >> 31) & 1L)) & 0xffffffff
+  right = ((right << 1) | ((right >> 31) & 1)) & 0xffffffff
   work = (leftt ^ right) & 0xaaaaaaaa
   leftt ^= work
   right ^= work
-  leftt = ((leftt << 1) | ((leftt >> 31) & 1L)) & 0xffffffff
+  leftt = ((leftt << 1) | ((leftt >> 31) & 1)) & 0xffffffff
 
   for i in range(0, 32, 4):
     work  = (right << 28) | (right >> 4)
