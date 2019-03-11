@@ -212,9 +212,9 @@ class RFBProxy:
           (server_result,) = unpack('>L', self.recv(4))
         else:
           server_result = 0
-      elif '\x02' in server_securities:
+      elif b'\x02' in server_securities:
         # VNCAuth
-        self.send('\x02')
+        self.send(b'\x02')
         (p, server_result) = crauth()
     # result returned.
     if self.debug:
