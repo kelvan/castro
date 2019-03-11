@@ -145,7 +145,7 @@ class RFBProxy:
       self.protocol_version = 7
     elif server_version.startswith(b'RFB 003.008'):
       self.protocol_version = 8
-    self.send('RFB 003.%03d\x0a' % self.protocol_version)
+    self.send(b'RFB 003.%03d\x0a' % self.protocol_version)
     if self.debug:
       print('protocol_version: 3.%d' % self.protocol_version, file=stderr)
     return self
