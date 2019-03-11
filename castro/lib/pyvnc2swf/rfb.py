@@ -204,9 +204,9 @@ class RFBProxy:
       if self.debug:
         print('server_securities: %r' % server_securities, file=stderr)
       # must include None or VNCAuth
-      if '\x01' in server_securities:
+      if b'\x01' in server_securities:
         # None
-        self.send('\x01')
+        self.send(b'\x01')
         if self.protocol_version == 8:
           # Protocol 3.8: must recv security result
           (server_result,) = unpack('>L', self.recv(4))
