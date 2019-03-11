@@ -520,7 +520,7 @@ class RFBNetworkClient(RFBProxy):
 
   def recv(self, n):
     # MS-Windows doesn't have MSG_WAITALL, so we emulate it.
-    buf = ''
+    buf = b''
     n0 = n
     while n:
       x = self.sock.recv(n)

@@ -376,11 +376,12 @@ def generate_response(passwd, challange):
 
 # test
 if __name__ == '__main__':
-  key = 'test1234'
-  plain = 'hello321'
-  cipher = '\xb4f\x01UnZ1\t'
+  key = b'test1234'
+  plain = b'hello321'
+  cipher = b'\xb4f\x01UnZ1\t'
   ek = deskey(key, False)
   dk = deskey(key, True)
+  import pdb; pdb.set_trace()
   assert desfunc(plain, ek) == cipher
   assert desfunc(desfunc(plain, ek), dk) == plain
   assert desfunc(desfunc(plain, dk), ek) == plain
