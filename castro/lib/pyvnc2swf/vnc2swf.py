@@ -370,7 +370,7 @@ class VNC2SWFWithTk:
     except RFBError as e:
       return self.error('RFB protocol error', e)
     if self.debug:
-      print >>stderr, 'stop recording'
+      print('stop recording', file=stderr)
     if self.subprocess:
       self.subprocess.stop()
     self.client.close()
@@ -403,7 +403,7 @@ def vnc2swf(info, outtype='swf5', host='localhost', port=5900,
     if info.filename == '-':
       fp = sys.stdout
     else:
-      fp = file(info.filename, 'wb')
+      fp = open(info.filename, 'wb')
     client = RFBNetworkClientForRecording(host, port, fp, pwdfile=pwdfile,
                                           preferred_encoding=preferred_encoding, debug=debug)
   else:

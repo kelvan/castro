@@ -548,7 +548,7 @@ class RFBNetworkClient(RFBProxy):
   def request_update(self):
     if self.debug:
       print('FrameBufferUpdateRequest', file=stderr)
-    self.send('\x03\x01' + pack('>HHHH', *self.clipping))
+    self.send(b'\x03\x01' + pack('>HHHH', *self.clipping))
     return
 
   def close(self):
