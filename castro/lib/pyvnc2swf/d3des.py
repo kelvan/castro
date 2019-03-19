@@ -84,6 +84,8 @@ pc2 = [
   ]
 
 def deskey(key, decrypt):      # Thanks to James Gillogly & Phil Karn!
+  if isinstance(key, str):
+    key = key.encode('UTF-8')
   key = unpack('8B', key)
 
   pc1m = [0]*56
@@ -294,6 +296,8 @@ SP8 = [
   ]
 
 def desfunc(block, keys):
+  if isinstance(block, str):
+    block = block.encode('UTF-8')
   (leftt, right) = unpack('>II', block)
   
   work = ((leftt >> 4) ^ right) & 0x0f0f0f0f

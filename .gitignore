@@ -4,6 +4,8 @@
 *.swp
 .python-version
 .venv
+.envrc
+.idea
 build
 dist
 castro.egg-info
