@@ -301,7 +301,7 @@ class VNC2SWFWithTk:
     self.info.filename = moviefile
     self.fp = None
     if self.outtype == 'vnc':
-      self.fp = file(self.info.filename, 'wb')
+      self.fp = open(self.info.filename, 'wb')
       self.client = RFBNetworkClientForRecordingWithTk(
         self.host, self.port, self.fp, pwdfile=self.pwdfile,
         preferred_encoding=self.preferred_encoding)
@@ -604,7 +604,7 @@ def main(argv):
     if isfile:
       vncfile = sys.stdin
       if args:
-        vncfile = file(args[0], 'rb')
+        vncfile = open(args[0], 'rb')
     vnc2swf(info, outtype, host, port,
             preferred_encoding=preferred_encoding,
             subprocess=subprocess, pwdfile=pwdfile, vncfile=vncfile,

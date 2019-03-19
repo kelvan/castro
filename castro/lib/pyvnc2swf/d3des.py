@@ -349,6 +349,7 @@ def desfunc(block, keys):
   leftt ^= work
   right ^= work
   leftt = (leftt << 31) | (leftt >> 1)
+
   work = ((leftt >> 8) ^ right) & 0x00ff00ff
   right ^= work
   leftt ^= (work << 8)

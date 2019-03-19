@@ -134,7 +134,7 @@ class SWFInfo:
     else:
       outfname = filename+'.html'
     print('Writing: %s...' % outfname, file=stderr)
-    out = file(outfname, 'w')
+    out = open(outfname, 'w')
     html_templates.generate_html(out, filename, seekbar=seekbar, loop=loop)
     out.close()
     return
@@ -238,7 +238,7 @@ class VNC2SWF_Parser(SWFParser):
   def do_tag1(self, tag, length):
     # ShowFrame
     if self.debug:
-      print >>stderr, 'ShowFrame'
+      print('ShowFrame', file=stderr)
     return
   
   def do_tag9(self, tag, length):
@@ -255,9 +255,7 @@ class VNC2SWF_Parser(SWFParser):
     width = self.readui16()
     height = self.readui16()
     length -= 7
-    tablesize = 0
     if fmt == 3:
-      tablesize = self.readui8()+1
       length -= 1
     if fmt == 5: # RGB or RGBA
       data = self.read(length)
@@ -325,13 +323,13 @@ class VNC2SWF_Parser(SWFParser):
     # RemoveObject2
     depth = self.readui16()
     if self.debug:
-      print >>stderr, 'RemoveObject', depth
+      print('RemoveObject', depth, file=stderr)
     return
 
   def scan_tag60(self, tag, length):
     # DefineVideoStream
     if self.video1_cid:
-      print >>stderr, 'DefineVideoStream already appeared.'
+      print('DefineVideoStream already appeared.', file=stderr)
       return
     cid = self.readui16()
     frames = self.readui16()
@@ -472,8 +470,8 @@ class FLVMovieParser(FLVParser):
       print('VideoFrame', framenum, frametype, ':',  blockwidth, imagewidth, blockheight, imageheight, file=stderr)
     hblocks = (imagewidth+blockwidth-1)/blockwidth
     vblocks = (imageheight+blockheight-1)/blockheight
-    for y in xrange(0, vblocks):
-      for x in xrange(0, hblocks):
+    for y in range(0, vblocks):
+      for x in range(0, hblocks):
         length = self.readub16()
         if length:
           data = self.read(length)

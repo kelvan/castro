@@ -49,29 +49,29 @@ class DataParser:
     return
 
   def open(self, fname):
-    self.fp = file(fname, 'rb')
+    self.fp = open(fname, 'rb')
     return
-    
+
   # fixed bytes read
-  
+
   def read(self, n):
     x = self.fp.read(n)
     if len(x) != n:
       raise EOFError
     return x
-  
+
   def readui8(self):
     return ord(self.read(1))
   def readsi8(self):
     return unpack('<b', self.read(1))[0]
-  
+
   def readui16(self):
     return unpack('<H', self.read(2))[0]
   def readub16(self):
     return unpack('>H', self.read(2))[0]
   def readsi16(self):
     return unpack('<h', self.read(2))[0]
-  
+
   def readub24(self):
     return unpack('>L', '\x00'+self.read(3))[0]
 
@@ -90,7 +90,7 @@ class DataParser:
   def setbuff(self, bpos=8, buff=0):
     (self.bpos, self.buff) = (bpos, buff)
     return
-  
+
   def readbits(self, bits, signed=False):
     if bits == 0: return 0
     bits0 = bits
@@ -115,7 +115,7 @@ class DataParser:
     if signed and (v>>(bits0-1)):
       v -= (1<<bits0)
     return v
-  
+
   # variable length structure
 
   def readstring(self):
@@ -771,8 +771,8 @@ class SWFWriter(DataWriter):
 
   def __init__(self, outfile, swf_version, rect, framerate, compression):
     if outfile == '-':
-      raise VelueError('cannot write a SWF file to stdout.')
-    self.outfp = file(outfile, 'wb')
+      raise ValueError('cannot write a SWF file to stdout.')
+    self.outfp = open(outfile, 'wb')
     self.swf_version = swf_version
     self.rect = rect
     self.framerate = framerate
@@ -838,7 +838,7 @@ class FLVWriter(DataWriter):
     if outfile == '-':
       self.outfp = sys.stdout
     else:
-      self.outfp = file(outfile, 'wb')
+      self.outfp = open(outfile, 'wb')
     self.rect = rect
     self.flv_version = flv_version
     self.framerate = framerate

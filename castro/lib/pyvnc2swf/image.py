@@ -27,6 +27,8 @@ import sys
 lowerbound = max
 upperbound = min
 
+stderr = sys.stderr
+
 #  format: 1: solid,
 #          2: raw (uncompressed)
 #          3: DefineBitLossless

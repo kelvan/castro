@@ -230,7 +230,7 @@ class RFBProxy:
     # save the password.
     self.pwdcache = p
     # send: always shared.
-    self.send('\x01')
+    self.send(b'\x01')
     return self
 
   def start(self):
@@ -248,7 +248,7 @@ class RFBProxy:
       print(' rgbmax=', (red_max, green_max, blue_max), file=stderr)
       print(' rgbshift=', (red_shift, green_shift, blue_shift), file=stderr)
     # setformat
-    self.send('\x00\x00\x00\x00')
+    self.send(b'\x00\x00\x00\x00')
     # 32bit, 8bit-depth, big-endian(RGBX), truecolour, 255max
     (bitsperpixel, depth, bigendian, truecolour,
      red_max, green_max, blue_max,
@@ -266,7 +266,7 @@ class RFBProxy:
       self.clipping = self.fb.init_screen(width, height, self.name)
     else:
       self.clipping = (0,0, width, height)
-    self.send('\x02\x00' + pack('>H', len(self.preferred_encoding)))
+    self.send(b'\x02\x00' + pack('>H', len(self.preferred_encoding)))
     for e in self.preferred_encoding:
       self.send(pack('>l', e))
     return self
@@ -279,11 +279,11 @@ class RFBProxy:
     elif c == None:
       # timeout
       pass
-    elif c == '\x00':
+    elif c == b'\x00':
       (nrects,) = unpack('>xH', self.recv_relay(3))
       if self.debug:
         print('FrameBufferUpdate: nrects=%d' % nrects, file=stderr)
-      for rectindex in xrange(nrects):
+      for rectindex in range(nrects):
         (x0, y0, width, height, t) = unpack('>HHHHl', self.recv_relay(12))
         if self.debug:
           print(' %d: %d x %d at (%d,%d), type=%d' % (rectindex, width, height, x0, y0, t), file=stderr)
@@ -321,7 +321,7 @@ class RFBProxy:
             print(' CoRREEncoding: subrects=%d, bgcolor=%r' % (nsubrects, bgcolor), file=stderr)
           if self.fb:
             self.fb.process_solid(x0, y0, width, height, bgcolor)
-          for i in xrange(nsubrects):
+          for i in range(nsubrects):
             fgcolor = self.recv_relay(self.bytesperpixel)
             (x,y,w,h) = unpack('>BBBB', self.recv_relay(4))
             if self.fb:
@@ -400,10 +400,10 @@ class RFBProxy:
               mask = ''.join([ byte2bit(mask[p:p+rowbytes])[:width]
                                for p in range(0, height*rowbytes, rowbytes) ])
               def conv1(i):
-                if mask[i/4] == '\x01':
-                  return '\xff'+data[i]+data[i+1]+data[i+2]
+                if mask[i/4] == b'\x01':
+                  return b'\xff'+data[i]+data[i+1]+data[i+2]
                 else:
-                  return '\x00\x00\x00\x00'
+                  return b'\x00\x00\x00\x00'
               data = ''.join([ conv1(i) for i in range(0, len(data), 4) ])
               self.fb.change_cursor(width, height, x0, y0, data)
         # XCursor
@@ -427,13 +427,13 @@ class RFBProxy:
               mask = ''.join([ byte2bit(mask[p:p+rowbytes])[:width]
                                for p in range(0, height*rowbytes, rowbytes) ])
               def conv1(i):
-                if mask[i] == '\x01':
-                  if data[i] == '\x01':
-                    return '\xff'+fgcolor
+                if mask[i] == b'\x01':
+                  if data[i] == b'\x01':
+                    return b'\xff'+fgcolor
                   else:
-                    return '\xff'+bgcolor
+                    return b'\xff'+bgcolor
                 else:
-                  return '\x00\x00\x00\x00'
+                  return b'\x00\x00\x00\x00'
               data = ''.join([ conv1(i) for i in range(len(data)) ])
               self.fb.change_cursor(width, height, x0, y0, data)
         # CursorPos -> only change the cursor position
@@ -445,18 +445,18 @@ class RFBProxy:
         else:
           raise RFBProtocolError('Illegal encoding: 0x%02x' % t)
       self.finish_update()
-    elif c == '\x01':
+    elif c == b'\x01':
       (first, ncolours) = unpack('>xHH', self.recv_relay(11))
       if self.debug:
         print('SetColourMapEntries: first=%d, ncolours=%d' % (first, ncolours), file=stderr)
       for i in ncolours:
         self.recv_relay(6)
 
-    elif c == '\x02':
+    elif c == b'\x02':
       if self.debug:
         print('Bell', file=stderr)
 
-    elif c == '\x03':
+    elif c == b'\x03':
       (length, ) = unpack('>3xL', self.recv_relay(7))
       data = self.recv_relay(length)
       if self.debug:
@@ -569,7 +569,7 @@ class RFBNetworkClientForRecording(RFBNetworkClient):
     self.write('vncLog0.0')
     # disguise data (security=none)
     self.write('RFB 003.003\x0a')
-    self.write('\x00\x00\x00\x01')
+    self.write(b'\x00\x00\x00\x01')
     self.updated = True
     return
 

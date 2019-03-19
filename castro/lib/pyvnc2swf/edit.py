@@ -158,7 +158,7 @@ def main(argv):
         return usage()
       streamtype = v
     elif k == '-a':
-      fp = file(v, 'rb')
+      fp = open(v, 'rb')
       print('Reading mp3 file: %s...' % v, file=stderr)
       info.reg_mp3blocks(fp)
       fp.close()

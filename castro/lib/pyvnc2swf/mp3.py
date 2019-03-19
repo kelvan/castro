@@ -235,4 +235,4 @@ class MP3Reader:
 
 if __name__ == "__main__":
   s = MP3Storage(True)
-  MP3Reader(s).read_mp3file(file(sys.argv[1]), verbose=1)
+  MP3Reader(s).read_mp3file(open(sys.argv[1]), verbose=1)
