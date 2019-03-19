@@ -786,7 +786,7 @@ class RFBMovieConverter(RFBConverter):
 
   def open(self, fname):
     self.processing = False
-    fp = file(fname, 'rb')
+    fp = open(fname, 'rb')
     self.rfbparser = RFBFileParser(fp, self, self.debug)
     self.rfbparser.init().auth().start()
     self.beginpos = self.rfbparser.tell()
