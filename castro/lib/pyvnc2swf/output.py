@@ -371,7 +371,7 @@ class SWFOutputStream(MovieOutputStream):
       rate = MP3_RATE[self.info.mp3.sample_rate]
       self.writer.writeui8(rate << 2 | 2 | int(self.info.mp3.isstereo))
       self.writer.writeui8(rate << 2 | (2<<4) | 2 | int(self.info.mp3.isstereo))
-      self.writer.writeui16(int(self.info.mp3.sample_rate / self.info.framerate))
+      self.writer.writeui16(int(self.info.mp3.sample_rate // self.info.framerate))
       # the first seeksamples, mp3.seek_frame should be preformed in advance.
       self.writer.writeui16(self.info.mp3.seeksamples)
       self.writer.end_tag(18)
@@ -400,7 +400,7 @@ class SWFOutputStream(MovieOutputStream):
     if frameid == None:
       frameid = self.output_frames
     if self.info.mp3:
-      t = (frameid+1) / self.info.framerate
+      t = (frameid+1) // self.info.framerate
       (nsamples, seeksamples, mp3frames) = self.info.mp3.get_frames_until(t)
       # SoundStreamBlock
       self.writer.start_tag()
@@ -649,9 +649,9 @@ class SWFVideoStream(SWFOutputStream):
         else:
           self.writer.writebits(4, 2)
         self.writer.writebits(4, 3) # screenvideo codec
-        self.writer.writebits(4, self.screen.block_w/16-1)
+        self.writer.writebits(4, self.screen.block_w//16-1)
         self.writer.writebits(12, self.screen.out_width)
-        self.writer.writebits(4, self.screen.block_h/16-1)
+        self.writer.writebits(4, self.screen.block_h//16-1)
         self.writer.writebits(12, self.screen.out_height)
         self.writer.finishbits()
         for data in r:
@@ -886,9 +886,9 @@ class FLVVideoStream(MovieOutputStream):
     else:
       self.writer.writebits(4, 2)
     self.writer.writebits(4, 3) # screenvideo codec
-    self.writer.writebits(4, self.screen.block_w/16-1)
+    self.writer.writebits(4, self.screen.block_w//16-1)
     self.writer.writebits(12, self.screen.out_width)
-    self.writer.writebits(4, self.screen.block_h/16-1)
+    self.writer.writebits(4, self.screen.block_h//16-1)
     self.writer.writebits(12, self.screen.out_height)
     self.writer.finishbits()
     for data in r:
@@ -899,7 +899,7 @@ class FLVVideoStream(MovieOutputStream):
       else:
         self.writer.writeub16(0)
     # the first tag: always t == 0
-    t = (self.output_frames*1000) / self.info.framerate
+    t = (self.output_frames*1000) // self.info.framerate
     self.writer.end_tag(9, t)
     MovieOutputStream.next_frame(self)
     return
@@ -1000,7 +1000,7 @@ class MovieBuilder:
       for fid in range(prev, frameid):
         self.step()
       if self.movie.info.mp3 and self.mp3seek:
-        self.movie.info.mp3.seek_frame(frameid / self.movie.info.framerate)
+        self.movie.info.mp3.seek_frame(frameid // self.movie.info.framerate)
     if self.kfinterval and (frameid % self.kfinterval) == 0:
       self.stream.set_keyframe()
     return
@@ -1027,5 +1027,5 @@ class MovieBuilder:
     self.finish()
     if self.verbose:
       print('%d frames written (duration=%.1fs)' % \
-            (len(frames), len(frames)/self.movie.info.framerate), file=stderr)
+            (len(frames), len(frames)//self.movie.info.framerate), file=stderr)
     return
