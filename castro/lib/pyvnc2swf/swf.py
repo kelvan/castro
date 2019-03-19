@@ -493,7 +493,7 @@ class DataWriter:
 
   def writeui8(self, *args):
     for x in args:
-      self.fp.write(chr(x))
+      self.fp.write(chr(x).encode('UTF-8'))
     return
   def writesi8(self, *args):
     for x in args:
@@ -555,7 +555,7 @@ class DataWriter:
         # |-----8-bits-----|
         # |-bpos-|---bits----...
         # |      |----r----|
-        self.fp.write(chr(self.buff | (x >> (bits-r)))) # r < bits
+        self.fp.write(chr(self.buff | (x >> (bits-r))).encode('UTF-8')) # r < bits
         self.buff = 0
         self.bpos = 0
         bits -= r                      # cut the upper r bits
@@ -564,7 +564,7 @@ class DataWriter:
   
   def finishbits(self):
     if self.bpos:
-      self.fp.write(chr(self.buff))
+      self.fp.write(chr(self.buff).encode('UTF-8'))
       self.buff = 0
       self.bpos = 0
     return
@@ -846,7 +846,7 @@ class FLVWriter(DataWriter):
     self.bpos = 0
     self.buff = 0
     self.fp = self.outfp
-    self.fp.write('FLV%c' % self.flv_version)
+    self.fp.write(b'FLV%c' % self.flv_version)
     self.writebits(5,0)
     self.writebits(1,0) # has audio
     self.writebits(1,0)
