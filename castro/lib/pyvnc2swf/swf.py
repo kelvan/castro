@@ -187,7 +187,7 @@ class SWFParser(DataParser):
       x = zlib.decompress(self.fp.read())
       self.fp = StringIO(x)
     self.rect = self.readrect()
-    self.framerate = self.readui16()/256.0
+    self.framerate = self.readui16()/256
     self.framecount = self.readui16()
     if self.debug:
       print('Header:', self.rect, self.framerate, self.framecount, file=stderr)
@@ -257,13 +257,13 @@ class SWFParser(DataParser):
     (scalex, scaley) = (None, None)
     if self.readbits(1):                # hasscale
       n = self.readbits(5)
-      scalex = self.readbits(n,1)/65536.0
-      scaley = self.readbits(n,1)/65536.0
+      scalex = self.readbits(n,1)/65536
+      scaley = self.readbits(n,1)/65536
     (rot0, rot1) = (None, None)
     if self.readbits(1):                # hasrotate
       n = self.readbits(5)
-      rot0 = self.readbits(n,1)/65536.0
-      rot1 = self.readbits(n,1)/65536.0
+      rot0 = self.readbits(n,1)/65536
+      rot1 = self.readbits(n,1)/65536
     (transx, transy) = (None, None)
     n = self.readbits(5)
     transx = self.readbits(n,1)

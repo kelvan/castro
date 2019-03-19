@@ -255,7 +255,7 @@ class RFBProxy:
      red_shift, green_shift, blue_shift) = self.preferred_format(bitsperpixel, depth, bigendian, truecolour,
                                                                  red_max, green_max, blue_max,
                                                                  red_shift, green_shift, blue_shift)
-    self.bytesperpixel = bitsperpixel/8
+    self.bytesperpixel = bitsperpixel//8
     pixelformat = pack('>BBBBHHHBBBxxx', bitsperpixel, depth, bigendian, truecolour,
                        red_max, green_max, blue_max,
                        red_shift, green_shift, blue_shift)
@@ -387,7 +387,7 @@ class RFBProxy:
         # RichCursor
         elif t == -239:
           if width and height:
-            rowbytes = (width + 7) / 8;
+            rowbytes = (width + 7) // 8;
             # Cursor image RGB
             data = self.recv_relay(width * height * self.bytesperpixel)
             # Cursor mask -> 1 bit/pixel (1 -> image; 0 -> transparent)
@@ -400,7 +400,7 @@ class RFBProxy:
               mask = ''.join([ byte2bit(mask[p:p+rowbytes])[:width]
                                for p in range(0, height*rowbytes, rowbytes) ])
               def conv1(i):
-                if mask[i/4] == b'\x01':
+                if mask[i//4] == b'\x01':
                   return b'\xff'+data[i]+data[i+1]+data[i+2]
                 else:
                   return b'\x00\x00\x00\x00'
@@ -409,7 +409,7 @@ class RFBProxy:
         # XCursor
         elif t == -240:
           if width and height:
-            rowbytes = (width + 7) / 8;
+            rowbytes = (width + 7) // 8;
             # Foreground RGB
             fgcolor = self.recv_relay(3)
             # Background RGB
@@ -625,7 +625,7 @@ class RFBFileParser(RFBProxy):
       except KeyError:
         raise 'invalid bitsperpixel: %d' % bitsperpixel
       unpackstr = endian + length
-      nbytes = bitsperpixel / 8
+      nbytes = bitsperpixel // 8
       bits = {1:1, 3:2, 7:3, 15:4, 31:5, 63:6, 127:7, 255:8}
       try:
         e = 'lambda p: (((p>>%d)&%d)<<%d, ((p>>%d)&%d)<<%d, ((p>>%d)&%d)<<%d)' % \
@@ -684,7 +684,7 @@ class RFBFileParser(RFBProxy):
 
   def request_update(self):
     (sec, usec) = unpack('>LL', self.recv(8))
-    self.curtime = sec+usec/1000000.0
+    self.curtime = sec+usec/1000000
     return
   
   def finish_update(self):
