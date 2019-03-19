@@ -135,8 +135,8 @@ class SWFBlockScreen(SWFScreen):
     self.block_h = block_h
     if scaling:
       (w,h) = (int(w*scaling), int(h*scaling))
-    self.hblocks = (w+self.block_w-1)/self.block_w
-    self.vblocks = (h+self.block_h-1)/self.block_h
+    self.hblocks = (w+self.block_w-1)//self.block_w
+    self.vblocks = (h+self.block_h-1)//self.block_h
     return
 
 
@@ -265,10 +265,10 @@ class SWFVideoScreen(SWFBlockScreen):
     if self.scaling:
       (x0,y0,w,h) = (int(x0*self.scaling), int(y0*self.scaling),
                      int(w*self.scaling), int(h*self.scaling))
-    x1 = upperbound((x0+w-1)/self.block_w+1, self.hblocks)
-    y1 = upperbound((self.out_height-y0)/self.block_h+1, self.vblocks)
-    x0 = lowerbound(x0/self.block_w, 0)
-    y0 = lowerbound((self.out_height-(y0+h-1))/self.block_h, 0)
+    x1 = upperbound((x0+w-1)//self.block_w+1, self.hblocks)
+    y1 = upperbound((self.out_height-y0)//self.block_h+1, self.vblocks)
+    x0 = lowerbound(x0//self.block_w, 0)
+    y0 = lowerbound((self.out_height-(y0+h-1))//self.block_h, 0)
     for line in self.block_changed[y0:y1]:
       for x in range(x0, x1):
         line[x] = True
